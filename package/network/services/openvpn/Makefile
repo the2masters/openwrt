@@ -145,6 +145,10 @@ define Package/openvpn-$(BUILD_VARIANT)/install
 		files/openvpn.options \
 		$(1)/usr/share/openvpn/openvpn.options
 
+	$(INSTALL_BIN) \
+		files/route-up.sh \
+		$(1)/etc/openvpn
+
 	$(INSTALL_CONF) files/openvpn.config \
 		$(1)/etc/config/openvpn
 
