@@ -222,7 +222,7 @@ config BUSYBOX_DEFAULT_FEATURE_EDITING
 	default y
 config BUSYBOX_DEFAULT_FEATURE_EDITING_MAX_LEN
 	int
-	default 512
+	default 5120
 config BUSYBOX_DEFAULT_FEATURE_EDITING_VI
 	bool
 	default n
@@ -231,13 +231,13 @@ config BUSYBOX_DEFAULT_FEATURE_EDITING_HISTORY
 	default 256
 config BUSYBOX_DEFAULT_FEATURE_EDITING_SAVEHISTORY
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_EDITING_SAVE_ON_EXIT
 	bool
 	default n
 config BUSYBOX_DEFAULT_FEATURE_REVERSE_SEARCH
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_TAB_COMPLETION
 	bool
 	default y
@@ -252,13 +252,13 @@ config BUSYBOX_DEFAULT_FEATURE_EDITING_WINCH
 	default n
 config BUSYBOX_DEFAULT_FEATURE_EDITING_ASK_TERMINAL
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_LOCALE_SUPPORT
 	bool
 	default n
 config BUSYBOX_DEFAULT_UNICODE_SUPPORT
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_UNICODE_USING_LOCALE
 	bool
 	default n
@@ -267,10 +267,10 @@ config BUSYBOX_DEFAULT_FEATURE_CHECK_UNICODE_IN_ENV
 	default n
 config BUSYBOX_DEFAULT_SUBST_WCHAR
 	int
-	default 0
+	default 63
 config BUSYBOX_DEFAULT_LAST_SUPPORTED_WCHAR
 	int
-	default 0
+	default 767
 config BUSYBOX_DEFAULT_UNICODE_COMBINING_WCHARS
 	bool
 	default n
@@ -291,13 +291,13 @@ config BUSYBOX_DEFAULT_FEATURE_NON_POSIX_CP
 	default y
 config BUSYBOX_DEFAULT_FEATURE_VERBOSE_CP_MESSAGE
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_USE_SENDFILE
 	bool
 	default y
 config BUSYBOX_DEFAULT_FEATURE_COPYBUF_KB
 	int
-	default 4
+	default 128
 config BUSYBOX_DEFAULT_FEATURE_SKIP_ROOTFS
 	bool
 	default n
@@ -558,7 +558,7 @@ config BUSYBOX_DEFAULT_DF
 	default y
 config BUSYBOX_DEFAULT_FEATURE_DF_FANCY
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_DIRNAME
 	bool
 	default y
@@ -2339,7 +2339,7 @@ config BUSYBOX_DEFAULT_FEATURE_INETD_RPC
 	default n
 config BUSYBOX_DEFAULT_IP
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_IPADDR
 	bool
 	default n
@@ -2681,7 +2681,7 @@ config BUSYBOX_DEFAULT_FEATURE_MIME_CHARSET
 	default ""
 config BUSYBOX_DEFAULT_FREE
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_FUSER
 	bool
 	default n
@@ -2732,7 +2732,7 @@ config BUSYBOX_DEFAULT_FEATURE_POWERTOP_INTERACTIVE
 	default n
 config BUSYBOX_DEFAULT_PS
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_FEATURE_PS_WIDE
 	bool
 	default y
@@ -2761,9 +2761,6 @@ config BUSYBOX_DEFAULT_BB_SYSCTL
 	bool
 	default y
 config BUSYBOX_DEFAULT_TOP
-	bool
-	default y
-config BUSYBOX_DEFAULT_FEATURE_TOP_INTERACTIVE
 	bool
 	default n
 config BUSYBOX_DEFAULT_FEATURE_TOP_CPU_USAGE_PERCENTAGE

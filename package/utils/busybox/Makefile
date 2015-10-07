@@ -145,6 +145,9 @@ ifneq ($(CONFIG_BUSYBOX_$(BUSYBOX_SYM)_NTPD),)
 	$(INSTALL_BIN) ./files/sysntpd $(1)/etc/init.d/sysntpd
 	$(INSTALL_BIN) ./files/ntpd-hotplug $(1)/usr/sbin/ntpd-hotplug
 endif
+
+	$(INSTALL_DIR) $(1)/root
+	$(LN) /tmp/ash_history $(1)/root/.ash_history
 	-rm -rf $(1)/lib64
 endef
 
