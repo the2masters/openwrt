@@ -12,7 +12,7 @@ export VERBOSE=1
 export SAVE_CONFIG=1
 export SAVE_OVERLAY=0
 export SAVE_OVERLAY_PATH=
-export SAVE_PARTITIONS=1
+export SAVE_PARTITIONS=0
 export SAVE_INSTALLED_PKGS=0
 export SKIP_UNCHANGED=0
 export CONF_IMAGE=
@@ -34,7 +34,7 @@ while [ -n "$1" ]; do
 		-n) export SAVE_CONFIG=0;;
 		-c) export SAVE_OVERLAY=1 SAVE_OVERLAY_PATH=/etc;;
 		-o) export SAVE_OVERLAY=1 SAVE_OVERLAY_PATH=/;;
-		-p) export SAVE_PARTITIONS=0;;
+		-p) export SAVE_PARTITIONS=1;;
 		-k) export SAVE_INSTALLED_PKGS=1;;
 		-u) export SKIP_UNCHANGED=1;;
 		-b|--create-backup) export CONF_BACKUP="$2" NEED_IMAGE=1; shift;;
@@ -73,7 +73,7 @@ upgrade-option:
 	             from packages but including changed confs.
 	-u           skip from backup files that are equal to those in /rom
 	-n           do not save configuration over reflash
-	-p           do not attempt to restore the partition table after flash.
+	-p           attempt to restore the partition table after flash.
 	-k           include in backup a list of current installed packages at
 	             $INSTALLED_PACKAGES
 	-T | --test
