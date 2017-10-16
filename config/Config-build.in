@@ -40,7 +40,7 @@ menu "Global build settings"
 
 	config SIGNED_PACKAGES
 		bool "Cryptographically signed package lists"
-		default y
+		default n
 
 	config SIGNATURE_CHECK
 		bool "Enable signature checking in opkg"
@@ -99,7 +99,7 @@ menu "Global build settings"
 
 	config INCLUDE_CONFIG
 		bool "Include build configuration in firmware" if DEVEL
-		default n
+		default y
 		help
 		  If enabled, buildinfo files will be stored in /etc/build.* of firmware.
 

@@ -6,8 +6,6 @@ BOARDNAME:=Atheros ATH79
 CPU_TYPE:=24kc
 SUBTARGETS:=generic mikrotik nand tiny
 
-FEATURES:=ramdisk usbgadget
-
 KERNEL_PATCHVER:=5.4
 KERNEL_TESTING_PATCHVER:=5.4
 

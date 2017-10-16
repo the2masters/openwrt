@@ -10,7 +10,7 @@ ifneq ($(__target_inc),1)
 __target_inc=1
 
 # default device type
-DEVICE_TYPE?=router
+DEVICE_TYPE?=none
 
 # Default packages - the really basic set
 DEFAULT_PACKAGES:=\

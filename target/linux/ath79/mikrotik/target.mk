@@ -1,5 +1,5 @@
 BOARDNAME := MikroTik devices
-FEATURES += minor nand squashfs
+FEATURES += ramdisk minor nand squashfs
 
 DEFAULT_PACKAGES += wpad-basic-wolfssl
 

@@ -399,7 +399,7 @@ config KERNEL_COREDUMP
 config KERNEL_ELF_CORE
 	bool "Enable process core dump support"
 	select KERNEL_COREDUMP
-	default y if !SMALL_FLASH
+	default n
 
 config KERNEL_PROVE_LOCKING
 	bool "Enable kernel lock checking"
@@ -476,7 +476,7 @@ config KERNEL_DEBUG_VM
 
 config KERNEL_PRINTK_TIME
 	bool "Enable printk timestamps"
-	default y
+	default n
 
 config KERNEL_SLUB_DEBUG
 	bool
@@ -510,7 +510,7 @@ config KERNEL_CRASH_DUMP
 	select KERNEL_PROC_VMCORE
 	select KERNEL_PROC_KCORE
 	bool "Enable support for kexec crashdump"
-	default y
+	default n
 
 config USE_RFKILL
 	bool "Enable rfkill support"
