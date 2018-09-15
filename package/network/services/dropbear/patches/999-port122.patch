@@ -1,0 +1,20 @@
+--- dropbear-2017.75/cli-runopts.c.orig	2019-01-30 17:25:23.870449673 +0100
++++ dropbear-2017.75/cli-runopts.c	2019-01-30 17:25:34.670416454 +0100
+@@ -419,7 +419,7 @@
+ #endif
+ 
+ 	if (cli_opts.remoteport == NULL) {
+-		cli_opts.remoteport = "22";
++		cli_opts.remoteport = "122";
+ 	}
+ 
+ 	/* If not explicitly specified with -t or -T, we don't want a pty if
+@@ -620,7 +620,7 @@
+ 			dropbear_exit("-J can't be used with multihop mode");
+ 		}
+ 		if (cli_opts.remoteport == NULL) {
+-			cli_opts.remoteport = "22";
++			cli_opts.remoteport = "122";
+ 		}
+ 		cmd_len = strlen(argv0) + strlen(remainder) 
+ 			+ strlen(cli_opts.remotehost) + strlen(cli_opts.remoteport)
