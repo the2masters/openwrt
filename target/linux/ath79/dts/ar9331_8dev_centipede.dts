@@ -1,0 +1,133 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+#include "ar9331.dtsi"
+
+/ {
+	model = "8devices Centipede";
+	compatible = "8dev,centipede", "qca,ar9331";
+
+	aliases {
+		serial0 = &uart;
+                label-mac-device = &wmac;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&jtag_disable_pins &switch_led_disable_pins>;
+
+		lan {
+			label = "centipede:green:lan";
+			gpios = <&gpio 13 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+&pinmux {
+	reg = <0x18040028 0xC>;
+
+	uart_rts_cts_enable: pinmux_uart_rts_cts_enable {
+		pinctrl-single,bits = <0x0 0x4 0x4>;
+	};
+
+	buttons_disable_pins: pinmux_buttons_disable_pins {
+		pinctrl-single,bits = <0x8 0x300 0x300>;
+	};
+};
+
+
+&ref {
+	clock-frequency = <40000000>;
+};
+
+&uart {
+	status = "okay";
+//	pinctrl-names = "default";
+//	pinctrl-0 = <&buttons_disable_pins &uart_rts_cts_enable>;
+
+//	uart-has-rtscts;
+};
+
+&gpio {
+	status = "okay";
+};
+
+//&usb {
+//	dr_mode = "host";
+//	status = "okay";
+//};
+
+//&usb_phy {
+//	status = "okay";
+//};
+
+&spi {
+	num-chipselects = <0>;
+	status = "okay";
+
+	flash@0 {
+		compatible = "jedec,spi-nor";
+		spi-max-frequency = <104000000>;
+		reg = <0>;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			uboot:	partition@0 {
+				label = "u-boot";
+				reg = <0x000000 0x040000>;
+				read-only;
+			};
+
+			partition@40000 {
+				label = "u-boot-env";
+				reg = <0x040000 0x010000>;
+				read-only;
+			};
+
+			partition@50000 {
+				compatible = "denx,uimage";
+				label = "firmware";
+				reg = <0x50000 0xfa0000>;
+			};
+
+			art: partition@ff0000 {
+				label = "art";
+				reg = <0xff0000 0x010000>;
+				read-only;
+			};
+		};
+	};
+};
+
+&mdio0 {
+	status = "okay";
+};
+
+&eth0 {
+	status = "okay";
+        mtd-mac-address = <&art 0x0>;
+
+        gmac-config {
+                device = <&gmac>;
+
+                switch-phy-addr-swap = <1>;
+                switch-phy-swap = <1>;
+        };
+};
+
+&eth1 {
+	status = "okay";
+	mtd-mac-address = <&art 0x0>;
+};
+
+&wmac {
+	status = "okay";
+	mtd-cal-data = <&art 0x1000>;
+};

@@ -181,6 +181,14 @@ define Device/8dev_carambola2
 endef
 TARGET_DEVICES += 8dev_carambola2
 
+define Device/8dev_centipede
+  SOC := ar9331
+  DEVICE_TITLE := 8devices Centipede
+  IMAGE_SIZE := 16000k
+  SUPPORTED_DEVICES += centipede
+endef
+TARGET_DEVICES += 8dev_centipede
+
 define Device/8dev_lima
   SOC := qca9531
   DEVICE_VENDOR := 8devices
