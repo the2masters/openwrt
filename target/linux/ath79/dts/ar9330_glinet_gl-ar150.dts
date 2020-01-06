@@ -20,6 +20,8 @@
 
 	leds {
 		compatible = "gpio-leds";
+                pinctrl-names = "default";
+                pinctrl-0 = <&jtag_disable_pins &switch_led_disable_pins>;
 
 		wlan {
 			label = "gl-ar150:orange:wlan";
