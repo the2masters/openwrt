@@ -1,0 +1,123 @@
+--- a/fs/yaffs2/yaffs_vfs.c
++++ b/fs/yaffs2/yaffs_vfs.c
+@@ -88,6 +88,9 @@
+ #include <linux/interrupt.h>
+ #include <linux/string.h>
+ #include <linux/ctype.h>
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(4, 19, 0))
++#include <linux/blkdev.h>
++#endif
+ 
+ #if (YAFFS_NEW_FOLLOW_LINK == 1)
+ #include <linux/namei.h>
+@@ -272,10 +275,16 @@
+ #define update_dir_time(dir) do {\
+ 		(dir)->i_ctime = (dir)->i_mtime = current_kernel_time(); \
+ 	} while (0)
+-#else
++#elif (LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0))
+ #define update_dir_time(dir) do {\
+ 		(dir)->i_ctime = (dir)->i_mtime = current_kernel_time64(); \
+ 	} while (0)
++#else
++#define update_dir_time(dir) do {\
++		struct timespec64 ltime; \
++		ktime_get_coarse_real_ts64(&ltime); \
++		(dir)->i_ctime = (dir)->i_mtime = ltime; \
++	} while (0)
+ #endif
+ 
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 9, 0))
+@@ -2044,7 +2053,17 @@
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19))
+ 		inode->i_blksize = inode->i_sb->s_blocksize;
+ #endif
+-#if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 5, 0))
++#if (LINUX_VERSION_CODE > KERNEL_VERSION(4, 19, 0))
++
++               inode->i_rdev = old_decode_dev(obj->yst_rdev);
++               inode->i_atime.tv_sec = (time64_t) (obj->yst_atime);
++               inode->i_atime.tv_nsec = 0;
++               inode->i_mtime.tv_sec = (time64_t) obj->yst_mtime;
++               inode->i_mtime.tv_nsec = 0;
++               inode->i_ctime.tv_sec = (time64_t) obj->yst_ctime;
++               inode->i_ctime.tv_nsec = 0;
++
++#elif (LINUX_VERSION_CODE > KERNEL_VERSION(2, 5, 0))
+ 
+ 		inode->i_rdev = old_decode_dev(obj->yst_rdev);
+ 		inode->i_atime.tv_sec = (time_t) (obj->yst_atime);
+@@ -2737,12 +2756,12 @@
+ 		return 1;
+ 	}
+ 
+-	read_only = ((*flags & MS_RDONLY) != 0);
++	read_only = ((*flags & SB_RDONLY) != 0);
+ 	if (!read_only && !(mtd->flags & MTD_WRITEABLE)) {
+ 		read_only = 1;
+ 		printk(KERN_INFO
+ 			"yaffs: mtd is read only, setting superblock read only");
+-		*flags |= MS_RDONLY;
++		*flags |= SB_RDONLY;
+ 	}
+ 
+ 	dev = sb->s_fs_info;
+@@ -2914,9 +2933,9 @@
+ 
+ 	sb->s_magic = YAFFS_MAGIC;
+ 	sb->s_op = &yaffs_super_ops;
+-	sb->s_flags |= MS_NOATIME;
++	sb->s_flags |= SB_NOATIME;
+ 
+-	read_only = ((sb->s_flags & MS_RDONLY) != 0);
++	read_only = ((sb->s_flags & SB_RDONLY) != 0);
+ 
+ #ifdef YAFFS_COMPILE_EXPORTFS
+ 	sb->s_export_op = &yaffs_export_ops;
+@@ -2994,7 +3013,7 @@
+ 		printk(KERN_INFO
+ 		       "yaffs: mtd is read only, setting superblock read only\n"
+ 		);
+-		sb->s_flags |= MS_RDONLY;
++		sb->s_flags |= SB_RDONLY;
+ 	}
+ 
+ 	dev = kmalloc(sizeof(struct yaffs_dev), GFP_KERNEL);
+@@ -3691,6 +3710,15 @@
+ 	return single_open(file, yaffs_proc_show, NULL);
+ }
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
++static const struct proc_ops procfs_ops = {
++	.proc_open = yaffs_proc_open,
++	.proc_read = seq_read,
++	.proc_lseek = seq_lseek,
++	.proc_release = single_release,
++	.proc_write = yaffs_proc_write,
++};
++#else
+ static struct file_operations procfs_ops = {
+ 	.owner = THIS_MODULE,
+ 	.open  = yaffs_proc_open,
+@@ -3698,6 +3726,7 @@
+ 	.write = yaffs_proc_write,
+ 	.release = single_release,
+ };
++#endif
+ 
+ static int yaffs_procfs_init(void)
+ {
+--- a/fs/yaffs2/yportenv.h
++++ b/fs/yaffs2/yportenv.h
+@@ -63,8 +63,10 @@
+ #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 5, 0))
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0))
+ #define Y_CURRENT_TIME CURRENT_TIME.tv_sec
+-#else
++#elif (LINUX_VERSION_CODE < KERNEL_VERSION(4,20,0))
+ #define Y_CURRENT_TIME current_kernel_time().tv_sec
++#else
++#define Y_CURRENT_TIME ({struct timespec64 retval; ktime_get_coarse_real_ts64(&retval); retval.tv_sec;})
+ #endif
+ #define Y_TIME_CONVERT(x) (x).tv_sec
+ #else
