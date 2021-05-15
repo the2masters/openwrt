@@ -120,7 +120,7 @@
 		qca,ar8327-initvals = <
 			0x04 0x07c00000 /* PORT0 PAD MODE CTRL: Mac0_rgmii_en | Mac0_rgmii_txclk_delay_en | Mac0_rgmii_rxclk_delay_en | Mac0_rgmii_txclk_delay_sel3 | Mac0_rgmii_rxclk_delay_sel0 */
 			0x0c 0x00000080 /* PORT6 PAD MODE CTRL: Mac6_sgmii_en */
-			0x10 0x81000080 /* PWS_REG: POWER_ON_STRAP | LED_OPEN_EN_CSR | SERDES_AEN*/
+			0x10 0x81000000 /* PWS_REG: POWER_ON_STRAP | LED_OPEN_EN_CSR */
 			0x50 0xc731c731 /* LED_CTRL0 */
 			0x54 0x00000000 /* LED_CTRL1 */
 			0x58 0x00008000 /* LED_CTRL2: 5A: disable LCD power */
@@ -151,12 +151,12 @@
 
 		partition@40000 {
 			label = "kernel";
-			reg = <0x0040000 0x03c0000>;
+			reg = <0x0040000 0x07c0000>;
 		};
 
-		partition@400000 {
+		partition@800000 {
 			label = "ubi";
-			reg = <0x0400000 0x7c00000>;
+			reg = <0x0800000 0x7800000>;
 		};
 	};
 };
