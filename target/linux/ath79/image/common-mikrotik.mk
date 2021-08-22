@@ -8,7 +8,8 @@ endef
 define Device/mikrotik_nor
   $(Device/mikrotik)
   BLOCKSIZE := 4k
-  IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | \
+  IMAGE/sysupgrade.bin := append-kernel | kernel2minor -s 1024 -e | \
+        pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | \
 	check-size | append-metadata
 endef
 
