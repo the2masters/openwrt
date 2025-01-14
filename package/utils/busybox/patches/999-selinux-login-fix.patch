@@ -1,0 +1,52 @@
+busybox-selinux: Use seuser for SELinux login
+
+We are working on enabling SELinux for BusyBox.
+
+We thought login should use the seuser for the SELinux default context, but the Linux username.
+
+
+Reference and example:
+
+getseuserbyname on https://selinuxproject.org/page/LibselinuxAPISummary
+
+ https://github.com/SELinuxProject/selinux/blob/master/libselinux/utils/getseuser.c
+
+Signed-off-by: Po-Chun Chang <pchang9 at itri.org.tw>
+---
+ loginutils/login.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/loginutils/login.c b/loginutils/login.c
+index 301be4a34..4992bb0e6 100644
+--- a/loginutils/login.c
++++ b/loginutils/login.c
+@@ -183,12 +183,16 @@ static void die_if_nologin(void)
+ static void initselinux(char *username, char *full_tty,
+ 						security_context_t *user_sid)
+ {
++	char *seuser = NULL, *level = NULL;
+ 	security_context_t old_tty_sid, new_tty_sid;
+ 
+ 	if (!is_selinux_enabled())
+ 		return;
+ 
+-	if (get_default_context(username, NULL, user_sid)) {
++	if (getseuserbyname(username, &seuser, &level)) {
++		bb_error_msg_and_die("can't get seuser for %s", username);
++	}
++	if (get_default_context(seuser, NULL, user_sid)) {
+ 		bb_error_msg_and_die("can't get SID for %s", username);
+ 	}
+ 	if (getfilecon(full_tty, &old_tty_sid) < 0) {
+@@ -201,6 +205,11 @@ static void initselinux(char *username, char *full_tty,
+ 	if (setfilecon(full_tty, new_tty_sid) != 0) {
+ 		bb_perror_msg_and_die("chsid(%s, %s) failed", full_tty, new_tty_sid);
+ 	}
++
++	if (ENABLE_FEATURE_CLEAN_UP) {
++		free(seuser);
++		free(level);
++	}
+ }
+ #endif
+ 
