@@ -94,6 +94,8 @@ define Device/efi-default
   SUPPORTED_DEVICES :=
  ifeq ($(CONFIG_arm),y)
   KERNEL_NAME = zImage
+ else
+  KERNEL_NAME = vmlinuz.efi
  endif
 endef
 
