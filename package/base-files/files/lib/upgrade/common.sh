@@ -166,58 +166,20 @@ part_magic_fat() {
 }
 
 export_bootdevice() {
-	local cmdline uuid blockdev uevent line class
-	local MAJOR MINOR DEVNAME DEVTYPE
-	local rootpart="$(cmdline_get_var root)"
+	local cmdline uuid blockdev line class
+	local DEVNAME PARTN
 
-	case "$rootpart" in
-		PARTUUID=[a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9]-[a-f0-9][a-f0-9])
-			uuid="${rootpart#PARTUUID=}"
-			uuid="${uuid%-[a-f0-9][a-f0-9]}"
-			for blockdev in $(find /dev -type b); do
-				set -- $(dd if=$blockdev bs=1 skip=440 count=4 2>/dev/null | hexdump -v -e '4/1 "%02x "')
-				if [ "$4$3$2$1" = "$uuid" ]; then
-					uevent="/sys/class/block/${blockdev##*/}/uevent"
-					break
-				fi
-			done
-		;;
-		PARTUUID=????????-????-????-????-??????????0?/PARTNROFF=1 | \
-		PARTUUID=????????-????-????-????-??????????02)
-			uuid="${rootpart#PARTUUID=}"
-			uuid="${uuid%/PARTNROFF=1}"
-			uuid="${uuid%0?}00"
-			for disk in $(find /dev -type b); do
-				set -- $(dd if=$disk bs=1 skip=568 count=16 2>/dev/null | hexdump -v -e '8/1 "%02x "" "2/1 "%02x""-"6/1 "%02x"')
-				if [ "$4$3$2$1-$6$5-$8$7-$9" = "$uuid" ]; then
-					uevent="/sys/class/block/${disk##*/}/uevent"
-					break
-				fi
-			done
-		;;
-		/dev/*)
-			uevent="/sys/class/block/${rootpart##*/}/../uevent"
-		;;
-		0x[a-f0-9][a-f0-9][a-f0-9] | 0x[a-f0-9][a-f0-9][a-f0-9][a-f0-9] | \
-		[a-f0-9][a-f0-9][a-f0-9] | [a-f0-9][a-f0-9][a-f0-9][a-f0-9])
-			rootpart=0x${rootpart#0x}
-			for class in /sys/class/block/*; do
-				while read line; do
-					export -n "$line"
-				done < "$class/uevent"
-				if [ $((rootpart/256)) = $MAJOR -a $((rootpart%256)) = $MINOR ]; then
-					uevent="$class/../uevent"
-				fi
-			done
-		;;
-	esac
+	local uevent="/sys/dev/block/$(grep -F -m 1 -e ' / /rom ' -e ' / / ' /proc/1/mountinfo | awk '{print $3}')/uevent"
 
-	if [ -e "$uevent" ]; then
-		while read line; do
-			export -n "$line"
-		done < "$uevent"
-		export BOOTDEV_MAJOR=$MAJOR
-		export BOOTDEV_MINOR=$MINOR
+	if [ -r "$uevent" ]; then
+		export -n $(grep -e 'DEVNAME=' -e 'PARTN=' "$uevent")
+		# remove partition number, but leave trailing p on mmcblk0p1
+		export "BOOTDEV=${DEVNAME%$PARTN}"
+		# save to /tmp for later calls without /dev/root mounted
+		echo "$BOOTDEV" > /tmp/bootdev
+		return 0
+	elif [ -r "/tmp/bootdev" ]; then
+		export "BOOTDEV=$(cat /tmp/bootdev)"
 		return 0
 	fi
 
@@ -225,18 +187,21 @@ export_bootdevice() {
 }
 
 export_partdevice() {
-	local var="$1" offset="$2"
-	local uevent line MAJOR MINOR DEVNAME DEVTYPE
+	local var="$1" offset="$2" devname="$BOOTDEV"
 
-	for uevent in /sys/class/block/*/uevent; do
-		while read line; do
-			export -n "$line"
-		done < "$uevent"
-		if [ "$BOOTDEV_MAJOR" = "$MAJOR" -a $(($BOOTDEV_MINOR + $offset)) = "$MINOR" -a -b "/dev/$DEVNAME" ]; then
-			export "$var=$DEVNAME"
-			return 0
-		fi
-	done
+	# remove trailing p from mmcblk0p, but not from sdp
+	if [ "$offset" -eq 0 ] && [ -z "${devname##*[0-9]p}" ]; then
+		devname="${devname%p}"
+	elif [ "$offset" -gt 0 ]; then
+		devname="$devname$offset"
+	fi
+
+	v "with offset=$offset devname=$devname"
+
+	if [ -b "/dev/$devname" ]; then
+		export "$var=$devname"
+		return 0
+	fi
 
 	return 1
 }
